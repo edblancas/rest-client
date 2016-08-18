@@ -41,7 +41,7 @@ public class SessionController {
             return "login";
         }
 
-        String oauthUrl = "https://com.edblancas.restclient.api.twitter.com/oauth2/token";
+        String oauthUrl = "https://api.twitter.com/oauth2/token";
         final String KEY_SECRET = CONSUMER_KEY + ":" + CONSUMER_SECRET;
 
         String authorizationString = "Basic " + Base64.getEncoder().encodeToString(
