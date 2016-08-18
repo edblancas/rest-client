@@ -25,11 +25,6 @@ public class SessionController {
     @Autowired
     TwitterApi twitterApi;
 
-    @Value("${application.consumerKey}")
-    private String CONSUMER_KEY = "";
-    @Value("${application.consumerSecret}")
-    private String CONSUMER_SECRET = "";
-
     @RequestMapping(value="/logout", method = GET)
     public String logoutPage (HttpServletRequest request) {
         request.getSession().invalidate();
@@ -46,7 +41,7 @@ public class SessionController {
             return "login";
         }
 
-        final String KEY_SECRET = CONSUMER_KEY + ":" + CONSUMER_SECRET;
+        final String KEY_SECRET = twitterApi.CONSUMER_KEY + ":" + twitterApi.CONSUMER_SECRET;
 
         String authorizationString = "Basic " + Base64.getEncoder().encodeToString(
                 KEY_SECRET.getBytes());
