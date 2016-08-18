@@ -29,16 +29,21 @@ public class GreetingController {
     @Value("${application.consumerSecret}")
     private String CONSUMER_SECRET = "";
 
+    @RequestMapping(value="/logout", method = GET)
+    public String logoutPage (HttpServletRequest request) {
+        request.getSession().invalidate();
+        return "logout";
+    }
+
     @RequestMapping(value = "/login", method = POST)
     public String login(@RequestParam(value = "username", required = false) String username,
                         Model model,
                         HttpServletRequest request) {
         model.addAttribute("jsonRes", "{}");
-        if (username == null) {
+        if (username.isEmpty()) {
             model.addAttribute("jsonRes", "{\"message\": \"Se requiere un usuario!\"}");
             return "login";
         }
-
 
         String oauthUrl = "https://api.twitter.com/oauth2/token";
         final String KEY_SECRET = CONSUMER_KEY + ":" + CONSUMER_SECRET;
@@ -66,8 +71,11 @@ public class GreetingController {
     }
 
     @RequestMapping(value = "/login", method = GET)
-    public String loginGET(Model model) {
+    public String loginGET(Model model, HttpServletRequest request) {
         model.addAttribute("jsonRes", "{}");
+        if (request.getSession(false) != null) {
+            return "redirect:/greeting";
+        }
         return "login";
     }
 
@@ -160,9 +168,4 @@ public class GreetingController {
         return "twitter-list-lists";
     }
 
-    @RequestMapping(value="/logout", method = GET)
-    public String logoutPage (HttpServletRequest request) {
-      request.getSession().invalidate();
-        return "logout";
-    }
 }

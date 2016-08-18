@@ -6,7 +6,7 @@
     <script>
         var jsonRes = {{{jsonRes}}};
     </script>
-    <script type="text/ecmascript-6">
+    <script>
         $(function () {
             jsonRes.users.forEach(user => $('body').append(
                     $('<div>' + user.name + ' <img src="' + user.profile_image_url + '"> </div>')));
