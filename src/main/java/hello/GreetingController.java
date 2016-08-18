@@ -1,13 +1,8 @@
 package hello;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.http.converter.FormHttpMessageConverter;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
@@ -18,21 +13,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Base64;
+import java.util.Date;
+import java.util.Map;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @Controller
 public class GreetingController {
 
-    @Value("${application.message:Hello World}")
-    private String message = "Hello World";
+    @Value("${application.message=Hello World!}")
+    private String message = "";
 
     @Value("${application.consumerKey}")
-    private final String CONSUMER_KEY = "";
+    private String CONSUMER_KEY = "";
     @Value("${application.consumerSecret}")
-    private final String CONSUMER_SECRET = "";
+    private String CONSUMER_SECRET = "";
 
     @RequestMapping("/greeting")
     public String greeting(@RequestParam(value = "name", required = false, defaultValue = "World") String name, Model model) {
