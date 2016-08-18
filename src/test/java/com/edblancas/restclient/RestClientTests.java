@@ -18,7 +18,6 @@ package com.edblancas.restclient;
 
 import java.util.Arrays;
 
-import com.edblancas.restclient.Application;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -37,12 +36,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Basic integration tests for Mustache application.
- *
- * @author Phillip Webb
- * @author Andy Wilkinson
- */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class ,webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
