@@ -3,3 +3,4 @@ build
 out
 **/.idea/workspace.xml
 **/.idea/tasks.xml
+src/main/resources/application.properties
