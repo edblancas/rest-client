@@ -1,6 +1,6 @@
-package hello;
+package com.edblancas.restclient.web;
 
-import models.BearerToken;
+import com.edblancas.restclient.models.BearerToken;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -41,7 +41,7 @@ public class SessionController {
             return "login";
         }
 
-        String oauthUrl = "https://api.twitter.com/oauth2/token";
+        String oauthUrl = "https://com.edblancas.restclient.api.twitter.com/oauth2/token";
         final String KEY_SECRET = CONSUMER_KEY + ":" + CONSUMER_SECRET;
 
         String authorizationString = "Basic " + Base64.getEncoder().encodeToString(

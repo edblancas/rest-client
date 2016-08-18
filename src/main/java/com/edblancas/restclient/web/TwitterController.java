@@ -1,4 +1,4 @@
-package hello;
+package com.edblancas.restclient.web;
 
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.http.*;
@@ -23,7 +23,7 @@ public class TwitterController {
             return "redirect:/home";
         }
 
-        String url = "https://api.twitter.com/1.1/followers/list.json?cursor=-1&" +
+        String url = "https://com.edblancas.restclient.api.twitter.com/1.1/followers/list.json?cursor=-1&" +
                 "screen_name=" + request.getSession().getAttribute("username") + "&skip_status=true&include_user_entities=false";
 
         HttpHeaders headers = new HttpHeaders();
@@ -46,7 +46,7 @@ public class TwitterController {
         if (request.getSession(false) == null) {
             return "redirect:/home";
         }
-        String url = "https://api.twitter.com/1.1/friends/list.json?cursor=-1&screen_name=" + request.getSession().getAttribute("username") +
+        String url = "https://com.edblancas.restclient.api.twitter.com/1.1/friends/list.json?cursor=-1&screen_name=" + request.getSession().getAttribute("username") +
                 "&skip_status=true&include_user_entities=false";
 
         HttpHeaders headers = new HttpHeaders();
@@ -70,7 +70,7 @@ public class TwitterController {
         if (request.getSession(false) == null) {
             return "redirect:/home";
         }
-        String url = "https://api.twitter.com/1.1/lists/list.json?screen_name=" + request.getSession().getAttribute("username");
+        String url = "https://com.edblancas.restclient.api.twitter.com/1.1/lists/list.json?screen_name=" + request.getSession().getAttribute("username");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

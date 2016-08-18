@@ -1,4 +1,4 @@
-package hello;
+package com.edblancas.restclient.web;
 
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;

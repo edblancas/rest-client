@@ -18,7 +18,7 @@ package sample.mustache;
 
 import java.util.Arrays;
 
-import hello.Application;
+import com.edblancas.restclient.Application;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
