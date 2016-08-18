@@ -1,7 +1,9 @@
 package com.edblancas.restclient.web;
 
+import com.edblancas.restclient.api.TwitterApi;
 import com.edblancas.restclient.models.BearerToken;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +22,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Controller
 public class SessionController {
+    @Autowired
+    TwitterApi twitterApi;
+
     @Value("${application.consumerKey}")
     private String CONSUMER_KEY = "";
     @Value("${application.consumerSecret}")
@@ -41,7 +46,6 @@ public class SessionController {
             return "login";
         }
 
-        String oauthUrl = "https://api.twitter.com/oauth2/token";
         final String KEY_SECRET = CONSUMER_KEY + ":" + CONSUMER_SECRET;
 
         String authorizationString = "Basic " + Base64.getEncoder().encodeToString(
@@ -59,7 +63,7 @@ public class SessionController {
         RestTemplate restTemplate = new RestTemplate();
 
         // note: con una clase interna no funciona
-        BearerToken token = restTemplate.postForObject(oauthUrl, entity, BearerToken.class);
+        BearerToken token = restTemplate.postForObject(twitterApi.AUTH_URL, entity, BearerToken.class);
 
         request.getSession().setAttribute("bearer", token.getAccess_token());
         request.getSession().setAttribute("username", username);
