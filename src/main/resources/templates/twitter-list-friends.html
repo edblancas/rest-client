@@ -1,20 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Friends</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script>
         var jsonRes = {{{jsonRes}}};
-
+    </script>
+    <script type="text/ecmascript-6">
         $(function () {
-            if (jsonRes.errors) {
-                $('body').append(
-                        $('<div>' + jsonRes.errors[0].message + '"> </div>'));
-            } else {
-                jsonRes.users.forEach(user => $('body').append(
-                        $('<div>' + user.name + ' <img src="' + user.profile_image_url + '"> </div>')));
-            }
+            jsonRes.users.forEach(user => $('body').append(
+                    $('<div>' + user.name + ' <img src="' + user.profile_image_url + '"> </div>')));
         });
     </script>
 </head>
