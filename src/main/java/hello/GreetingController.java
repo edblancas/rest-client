@@ -7,16 +7,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.Base64;
-import java.util.Date;
-import java.util.Map;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -87,42 +84,8 @@ public class GreetingController {
         return "greeting";
     }
 
-    @RequestMapping(value = "/quote", method = GET)
-    public String quote(Model model) {
-        RestTemplate restTemplate = new RestTemplate();
-        Quote quote = restTemplate.getForObject("http://gturnquist-quoters.cfapps.io/api/random", Quote.class);
-        model.addAttribute("quote", quote);
-        return "quote";
-    }
-
-    @GetMapping("/")
-    public String welcome(Map<String, Object> model) {
-        model.put("time", new Date());
-        model.put("message", this.message);
-        return "welcome";
-    }
-
-    @RequestMapping("/serviceUnavailable")
-    public String ServiceUnavailable() {
-        throw new ServiceUnavailableException();
-    }
-
-    @RequestMapping("/bang")
-    public String bang() {
-        throw new RuntimeException("Boom");
-    }
-
-    @RequestMapping("/insufficientStorage")
-    public String insufficientStorage() {
-        throw new InsufficientStorageException();
-    }
-
-    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
-    private static class ServiceUnavailableException extends RuntimeException {
-    }
-
-    @ResponseStatus(HttpStatus.INSUFFICIENT_STORAGE)
-    private static class InsufficientStorageException extends RuntimeException {
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    private static class NotFoundException extends RuntimeException {
     }
 
     @RequestMapping(value = "/twitter-list-followers", method = GET)
@@ -139,10 +102,13 @@ public class GreetingController {
         headers.set("Authorization", "Bearer " +request.getSession().getAttribute("bearer"));
 
         HttpEntity<String> entity = new HttpEntity<String>(headers);
+        try {
         HttpEntity<String> response= new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
 
         model.addAttribute("jsonRes", response.getBody());
-
+    } catch (HttpClientErrorException e) {
+        throw new NotFoundException();
+    }
         return "twitter-list-followers";
     }
 
@@ -159,8 +125,13 @@ public class GreetingController {
         RestTemplate restTemplate = new RestTemplate();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + request.getSession().getAttribute("bearer"));
-        HttpEntity<String> response= new RestTemplate().exchange(url, HttpMethod.GET, new HttpEntity<String>(headers), String.class);
-        model.addAttribute("jsonRes", response.getBody());
+
+        try {
+            HttpEntity<String> response= new RestTemplate().exchange(url, HttpMethod.GET, new HttpEntity<String>(headers), String.class);
+            model.addAttribute("jsonRes", response.getBody());
+        } catch (HttpClientErrorException e) {
+            throw new NotFoundException();
+        }
 
         return "twitter-list-friends";
     }
@@ -178,9 +149,13 @@ public class GreetingController {
         headers.set("Authorization", "Bearer " + bearer);
 
         HttpEntity<String> entity = new HttpEntity<String>(headers);
+        try {
         HttpEntity<String> response= new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
 
         model.addAttribute("jsonRes", response.getBody());
+    } catch (HttpClientErrorException e) {
+        throw new NotFoundException();
+    }
 
         return "twitter-list-lists";
     }
