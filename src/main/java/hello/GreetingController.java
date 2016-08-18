@@ -13,16 +13,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Controller
 public class GreetingController {
 
-    @Value("${application.message=Hello World!}")
+    @Value("${application.message:Hello World!}")
     private String message = "";
 
     @Value("${application.consumerKey}")
@@ -30,9 +32,36 @@ public class GreetingController {
     @Value("${application.consumerSecret}")
     private String CONSUMER_SECRET = "";
 
+    @RequestMapping(value = "/login", method = POST)
+    public String login(@RequestParam(value = "username", required = false) String username,
+                        Model model,
+                        HttpServletRequest request) {
+        model.addAttribute("jsonRes", "");
+        if (username == null) {
+            model.addAttribute("jsonRes", "{\"message\": \"Se requiere un usuario!\"}");
+            return "login";
+        }
+
+        request.getSession().setAttribute("username", username);
+        return "redirect:/greeting";
+    }
+
+    @RequestMapping(value = "/login", method = GET)
+    public String loginGET(Model model) {
+        model.addAttribute("jsonRes", "");
+        return "login";
+    }
+
     @RequestMapping("/greeting")
-    public String greeting(@RequestParam(value = "name", required = false, defaultValue = "World") String name, Model model) {
-        model.addAttribute("name", name);
+    public String greeting(@RequestParam(value = "name", required = false, defaultValue = "World") String name,
+                           Model model,
+                           HttpServletRequest request) {
+        model.addAttribute("jsonRes", "");
+        if (request.getSession(false) == null) {
+            model.addAttribute("jsonRes", "{\"message\": \"No tienes sesión!\"}");
+        } else {
+            model.addAttribute("jsonRes", "{\"message\": \"" + request.getSession().getAttribute("username") + "\"}");
+        }
         return "greeting";
     }
 
@@ -75,9 +104,9 @@ public class GreetingController {
     }
 
     @RequestMapping(value = "/twitter-list-followers", method = GET)
-    public String twitterListFollowers(Model model) {
+    public String twitterListFollowers(Model model, HttpServletRequest request) {
         String url = "https://api.twitter.com/1.1/followers/list.json?cursor=-1&" +
-                "screen_name=srpagooficial&skip_status=true&include_user_entities=false";
+                "screen_name=" + request.getSession().getAttribute("username") + "&skip_status=true&include_user_entities=false";
         String accessToken = "AAAAAAAAAAAAAAAAAAAAAIBNwgAAAAAA0zJztq8trtYg3jdfAkh5ulr8F2s%3DzciLfkNPobaaqXoN6cynGrQWYsqxivn1Z94E7w5VLPsxEjAO7p";
 
         HttpHeaders headers = new HttpHeaders();
@@ -94,7 +123,7 @@ public class GreetingController {
 
     @RequestMapping(value = "/twitter-list-friends", method = GET)
     public String twitterListFriends(Model model, HttpServletRequest request) {
-        String url = "https://api.twitter.com/1.1/friends/list.json?cursor=-1&screen_name=srpagooficial" +
+        String url = "https://api.twitter.com/1.1/friends/list.json?cursor=-1&screen_name=" + request.getSession().getAttribute("username") +
                 "&skip_status=true&include_user_entities=false";
         String oauthUrl = "https://api.twitter.com/oauth2/token";
         final String KEY_SECRET = CONSUMER_KEY + ":" + CONSUMER_SECRET;
@@ -128,7 +157,7 @@ public class GreetingController {
 
     @RequestMapping(value = "/twitter-list-lists", method = GET)
     public String twitterListLists(Model model, HttpServletRequest request) {
-        String url = "https://api.twitter.com/1.1/lists/list.json?screen_name=twitterapi";
+        String url = "https://api.twitter.com/1.1/lists/list.json?screen_name=" + request.getSession().getAttribute("username");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
