@@ -29,6 +29,11 @@ public class GreetingController {
     @Value("${application.message:Hello World}")
     private String message = "Hello World";
 
+    @Value("${application.consumerKey}")
+    private final String CONSUMER_KEY = "";
+    @Value("${application.consumerSecret}")
+    private final String CONSUMER_SECRET = "";
+
     @RequestMapping("/greeting")
     public String greeting(@RequestParam(value = "name", required = false, defaultValue = "World") String name, Model model) {
         model.addAttribute("name", name);
@@ -96,8 +101,6 @@ public class GreetingController {
         String url = "https://api.twitter.com/1.1/friends/list.json?cursor=-1&screen_name=srpagooficial" +
                 "&skip_status=true&include_user_entities=false";
         String oauthUrl = "https://api.twitter.com/oauth2/token";
-        final String CONSUMER_KEY = "D3BCkQgL8Ve47Sw0HVs9sZ0ec";
-        final String CONSUMER_SECRET = "uBN3p1AmFnkG87x2JG0ybOg0fvUQFZhgpEBGg6jf7IEC2kMYhk";
         final String KEY_SECRET = CONSUMER_KEY + ":" + CONSUMER_SECRET;
 
         String authorizationString = "Basic " + Base64.getEncoder().encodeToString(
