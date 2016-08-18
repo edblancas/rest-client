@@ -36,19 +36,41 @@ public class GreetingController {
     public String login(@RequestParam(value = "username", required = false) String username,
                         Model model,
                         HttpServletRequest request) {
-        model.addAttribute("jsonRes", "");
+        model.addAttribute("jsonRes", "{}");
         if (username == null) {
             model.addAttribute("jsonRes", "{\"message\": \"Se requiere un usuario!\"}");
             return "login";
         }
 
+
+        String oauthUrl = "https://api.twitter.com/oauth2/token";
+        final String KEY_SECRET = CONSUMER_KEY + ":" + CONSUMER_SECRET;
+
+        String authorizationString = "Basic " + Base64.getEncoder().encodeToString(
+                KEY_SECRET.getBytes());
+
+        HttpHeaders headers = new HttpHeaders();
+        // note: tenia header accept json y no fucionaba
+        headers.set("Authorization", authorizationString);
+
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+        map.add("grant_type", "client_credentials");
+
+        HttpEntity<?> entity = new HttpEntity<Object>(map, headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        // note: con una clase interna no funciona
+        BearerToken token = restTemplate.postForObject(oauthUrl, entity, BearerToken.class);
+
+        request.getSession().setAttribute("bearer", token.getAccess_token());
         request.getSession().setAttribute("username", username);
         return "redirect:/greeting";
     }
 
     @RequestMapping(value = "/login", method = GET)
     public String loginGET(Model model) {
-        model.addAttribute("jsonRes", "");
+        model.addAttribute("jsonRes", "{}");
         return "login";
     }
 
@@ -56,7 +78,7 @@ public class GreetingController {
     public String greeting(@RequestParam(value = "name", required = false, defaultValue = "World") String name,
                            Model model,
                            HttpServletRequest request) {
-        model.addAttribute("jsonRes", "");
+        model.addAttribute("jsonRes", "{}");
         if (request.getSession(false) == null) {
             model.addAttribute("jsonRes", "{\"message\": \"No tienes sesión!\"}");
         } else {
@@ -105,13 +127,16 @@ public class GreetingController {
 
     @RequestMapping(value = "/twitter-list-followers", method = GET)
     public String twitterListFollowers(Model model, HttpServletRequest request) {
-        String url = "https://api.twitter.com/1.1/followers/list.json?cursor=-1&" +
+        if (request.getSession(false) == null) {
+            return "redirect:/greeting";
+        }
+
+            String url = "https://api.twitter.com/1.1/followers/list.json?cursor=-1&" +
                 "screen_name=" + request.getSession().getAttribute("username") + "&skip_status=true&include_user_entities=false";
-        String accessToken = "AAAAAAAAAAAAAAAAAAAAAIBNwgAAAAAA0zJztq8trtYg3jdfAkh5ulr8F2s%3DzciLfkNPobaaqXoN6cynGrQWYsqxivn1Z94E7w5VLPsxEjAO7p";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " + accessToken);
+        headers.set("Authorization", "Bearer " +request.getSession().getAttribute("bearer"));
 
         HttpEntity<String> entity = new HttpEntity<String>(headers);
         HttpEntity<String> response= new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
@@ -123,32 +148,17 @@ public class GreetingController {
 
     @RequestMapping(value = "/twitter-list-friends", method = GET)
     public String twitterListFriends(Model model, HttpServletRequest request) {
+        if (request.getSession(false) == null) {
+            return "redirect:/greeting";
+        }
         String url = "https://api.twitter.com/1.1/friends/list.json?cursor=-1&screen_name=" + request.getSession().getAttribute("username") +
                 "&skip_status=true&include_user_entities=false";
-        String oauthUrl = "https://api.twitter.com/oauth2/token";
-        final String KEY_SECRET = CONSUMER_KEY + ":" + CONSUMER_SECRET;
-
-        String authorizationString = "Basic " + Base64.getEncoder().encodeToString(
-                KEY_SECRET.getBytes());
 
         HttpHeaders headers = new HttpHeaders();
-        // note: tenia header accept json y no fucionaba
-        headers.set("Authorization", authorizationString);
-
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
-        map.add("grant_type", "client_credentials");
-
-        HttpEntity<?> entity = new HttpEntity<Object>(map, headers);
-
+        HttpEntity<?> entity = new HttpEntity<Object>(headers);
         RestTemplate restTemplate = new RestTemplate();
-
-        // note: con una clase interna no funciona
-        BearerToken token = restTemplate.postForObject(oauthUrl, entity, BearerToken.class);
-
-        request.getSession().setAttribute("bearer", token.getAccess_token());
-
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " + token.getAccess_token());
+        headers.set("Authorization", "Bearer " + request.getSession().getAttribute("bearer"));
         HttpEntity<String> response= new RestTemplate().exchange(url, HttpMethod.GET, new HttpEntity<String>(headers), String.class);
         model.addAttribute("jsonRes", response.getBody());
 
@@ -157,6 +167,9 @@ public class GreetingController {
 
     @RequestMapping(value = "/twitter-list-lists", method = GET)
     public String twitterListLists(Model model, HttpServletRequest request) {
+        if (request.getSession(false) == null) {
+            return "redirect:/greeting";
+        }
         String url = "https://api.twitter.com/1.1/lists/list.json?screen_name=" + request.getSession().getAttribute("username");
 
         HttpHeaders headers = new HttpHeaders();

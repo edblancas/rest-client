@@ -8,9 +8,13 @@
         var jsonRes = {{{jsonRes}}};
 
         $(function () {
-            jsonRes.forEach(list => $('body').append(
-                    $('<div>' + list.name + '</div>'))
-            );
+            if (jsonRes.errors) {
+                $('body').append(
+                        $('<div>' + jsonRes.errors[0].message + '"> </div>'));
+            } else {
+                jsonRes.forEach(list => $('body').append(
+                        $('<div>' + list.name + '</div>')));
+            }
         });
     </script>
 </head>
