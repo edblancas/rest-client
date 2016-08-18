@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script>
+        var jsonRes = {{{jsonRes}}};
+
+        $(function () {
+            jsonRes.users.forEach(user => $('body').append(
+                    $('<div>' + user.name + ' <img src="' + user.profile_image_url + '"> </div>'))
+            )
+            ;
+        });
+    </script>
+</head>
+<body>
+</body>
+</html>
