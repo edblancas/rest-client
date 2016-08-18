@@ -4,26 +4,19 @@ import com.edblancas.restclient.api.TwitterApi;
 import com.edblancas.restclient.models.BearerToken;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.Base64;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Controller
 public class SessionController {
+
     @Autowired
-    TwitterApi twitterApi;
+    private TwitterApi twitterApi;
 
     @RequestMapping(value="/logout", method = GET)
     public String logoutPage (HttpServletRequest request) {
@@ -41,25 +34,7 @@ public class SessionController {
             return "login";
         }
 
-        final String KEY_SECRET = twitterApi.CONSUMER_KEY + ":" + twitterApi.CONSUMER_SECRET;
-
-        String authorizationString = "Basic " + Base64.getEncoder().encodeToString(
-                KEY_SECRET.getBytes());
-
-        HttpHeaders headers = new HttpHeaders();
-        // note: tenia header accept json y no fucionaba
-        headers.set("Authorization", authorizationString);
-
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
-        map.add("grant_type", "client_credentials");
-
-        HttpEntity<?> entity = new HttpEntity<Object>(map, headers);
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        // note: con una clase interna no funciona
-        BearerToken token = restTemplate.postForObject(twitterApi.AUTH_URL, entity, BearerToken.class);
-
+        BearerToken token = twitterApi.login();
         request.getSession().setAttribute("bearer", token.getAccess_token());
         request.getSession().setAttribute("username", username);
         return "redirect:/home";
