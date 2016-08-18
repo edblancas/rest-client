@@ -29,17 +29,10 @@ public class TwitterController {
             return "redirect:/home";
         }
 
-        String url =  twitterApi.API_URL + "/followers/list.json?cursor=-1&" +
-                "screen_name=" + request.getSession().getAttribute("username") + "&skip_status=true&include_user_entities=false";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " +request.getSession().getAttribute("bearer"));
-
-        HttpEntity<String> entity = new HttpEntity<String>(headers);
         try {
-            HttpEntity<String> response= new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
-
+            String username = (String) request.getSession().getAttribute("username");
+            String bearer = (String) request.getSession().getAttribute("bearer");
+            HttpEntity<String> response = twitterApi.getFollowers(username, bearer);
             model.addAttribute("jsonRes", response.getBody());
         } catch (HttpClientErrorException e) {
             throw new NotFoundException();
@@ -62,7 +55,7 @@ public class TwitterController {
         headers.set("Authorization", "Bearer " + request.getSession().getAttribute("bearer"));
 
         try {
-            HttpEntity<String> response= new RestTemplate().exchange(url, HttpMethod.GET, new HttpEntity<String>(headers), String.class);
+            HttpEntity<String> response = new RestTemplate().exchange(url, HttpMethod.GET, new HttpEntity<String>(headers), String.class);
             model.addAttribute("jsonRes", response.getBody());
         } catch (HttpClientErrorException e) {
             throw new NotFoundException();
@@ -85,7 +78,7 @@ public class TwitterController {
 
         HttpEntity<String> entity = new HttpEntity<String>(headers);
         try {
-            HttpEntity<String> response= new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
+            HttpEntity<String> response = new RestTemplate().exchange(url, HttpMethod.GET, entity, String.class);
 
             model.addAttribute("jsonRes", response.getBody());
         } catch (HttpClientErrorException e) {
